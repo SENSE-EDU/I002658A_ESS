@@ -26,7 +26,7 @@ import rasterio
 from rasterio.transform import from_origin
 
 
-def interpolate(x, y, z, cell_size, method='nearest', smooth_s=0, blank=blank):
+def interpolate(x, y, z, cell_size, method='nearest', smooth_s=0, blank=None):
     """
     Interpolate scatter data to regular grid through selected interpolation 
     method (with scipy.interpolate for simple interpolation).
@@ -60,8 +60,8 @@ def interpolate(x, y, z, cell_size, method='nearest', smooth_s=0, blank=blank):
         If 0, no smoothing is performed. (Applying smoothing can result 
         in a loss of detail in the interpolated grid.)
 
-    blank : object
-        A blank object to mask (clip )interpolation beyond survey bounds.
+    blank : object, optional
+        A blank object to mask (clip) interpolation beyond survey bounds.
 
     Returns
     -------
@@ -87,10 +87,11 @@ def interpolate(x, y, z, cell_size, method='nearest', smooth_s=0, blank=blank):
                         axis=1)
 
     boolean = np.zeros_like(xx)
-    boundaries = np.vstack(blank.loc[0, 'geometry'].exterior.coords.xy).T
-    bound = boundaries.copy()
-    boolean += matplotlib.path.Path(
-        bound).contains_points(coords).reshape((nx, ny))
+    if blank is not None:
+        boundaries = np.vstack(blank.loc[0, 'geometry'].exterior.coords.xy).T
+        bound = boundaries.copy()
+        boolean += matplotlib.path.Path(
+            bound).contains_points(coords).reshape((nx, ny))
     boolean = np.where(boolean >= 1, True, False)
     mask = np.where(boolean == False, np.nan, 1)
     binary = np.where(boolean == False, 0, 1)

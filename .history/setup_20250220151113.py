@@ -36,3 +36,5 @@ def check_and_install_packages(package_list):
                 print(f"{package} not installed: {e}")
             # Try importing the package again after installation
             importlib.import_module(package)
+                        except ImportError as e:
+                print(f"Failed to import {package} after installation: {e}")
