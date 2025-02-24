@@ -5,6 +5,9 @@ exporting grids, and calculating sensitivities.
 
 Functions:
 -----------
+- check_and_install_packages(package_list):
+    Checks for required packages and installs them if not found. This function integrates 
+    functionality to operate in Jupyter environments (including Google Colab) or standard IDEs.
 
 - interpolate(x, y, z, cell_size, method='nearest', smooth_s=0, blank=blank):
     Interpolates scatter data to a regular grid using the specified interpolation method.
@@ -16,9 +19,6 @@ Functions:
     Calculates approximative cumulative and relative sensitivities based on specified geometry.
 
 - update_plot(CLAY, VWC, ECW, BD):
-    Updates the plot based on the slider changes.
-
-- update_plot2(CEC, VWC, BD, ECW):
     Updates the plot based on the slider changes.
 
 - waxsmits(vwc, bd, water_ec, CEC, pdn=2.65, m=1.5, n=2, a=0.4):

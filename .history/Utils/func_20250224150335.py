@@ -5,6 +5,9 @@ exporting grids, and calculating sensitivities.
 
 Functions:
 -----------
+- check_and_install_packages(package_list):
+    Checks for required packages and installs them if not found. This function integrates 
+    functionality to operate in Jupyter environments (including Google Colab) or standard IDEs.
 
 - interpolate(x, y, z, cell_size, method='nearest', smooth_s=0, blank=blank):
     Interpolates scatter data to a regular grid using the specified interpolation method.
@@ -16,9 +19,6 @@ Functions:
     Calculates approximative cumulative and relative sensitivities based on specified geometry.
 
 - update_plot(CLAY, VWC, ECW, BD):
-    Updates the plot based on the slider changes.
-
-- update_plot2(CEC, VWC, BD, ECW):
     Updates the plot based on the slider changes.
 
 - waxsmits(vwc, bd, water_ec, CEC, pdn=2.65, m=1.5, n=2, a=0.4):
@@ -291,7 +291,7 @@ def update_plot(CLAY, VWC, ECW, BD):
     fig.suptitle(f'Comparison of Linde et al. 2006 and Fu et al. 2021 for EC modelling', fontsize=14)
     plt.show()
 
-# Update plot function
+    # Update plot function
 def update_plot2(CEC, VWC, BD,ECW):
     # Calculate model outputs
     c_v_it = [waxsmits(vwc, BD, ECW, CEC) for vwc in vwc_i]
@@ -327,6 +327,16 @@ def update_plot2(CEC, VWC, BD,ECW):
                  'Revil et al. 1998 modification', fontsize=14)
     plt.show()
 
+# Define sliders
+CEC_slider = FloatSlider(value=min_CEC, min=min_CEC, max=max_CEC, 
+                         step=0.1, description='CEC [mmol/g]')
+VWC_slider = FloatSlider(value=min_vwc, min=min_vwc, max=max_vwc, 
+                         step=0.1, description='VWC [%]')
+BD_slider = FloatSlider(value=min_bd, min=min_bd, max=max_bd, 
+                        step=0.01, description='BD [g/cm^3]')
+ECW_slider = FloatSlider(value=min_ecw, min=min_ecw, max=max_ecw, 
+                         step=0.1, description='EC_w [mS/m]')
+        
 # 2.0: Pedophysical modelling - Linde et al. 2006
 # -----------------------------------------------
 

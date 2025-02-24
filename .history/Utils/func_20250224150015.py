@@ -5,6 +5,9 @@ exporting grids, and calculating sensitivities.
 
 Functions:
 -----------
+- check_and_install_packages(package_list):
+    Checks for required packages and installs them if not found. This function integrates 
+    functionality to operate in Jupyter environments (including Google Colab) or standard IDEs.
 
 - interpolate(x, y, z, cell_size, method='nearest', smooth_s=0, blank=blank):
     Interpolates scatter data to a regular grid using the specified interpolation method.
@@ -18,9 +21,6 @@ Functions:
 - update_plot(CLAY, VWC, ECW, BD):
     Updates the plot based on the slider changes.
 
-- update_plot2(CEC, VWC, BD, ECW):
-    Updates the plot based on the slider changes.
-
 - waxsmits(vwc, bd, water_ec, CEC, pdn=2.65, m=1.5, n=2, a=0.4):
     Calculates the soil bulk real electrical conductivity using the revised Waxman-Smits model.
 
@@ -28,7 +28,6 @@ Functions:
     Calculates the soil bulk real electrical conductivity using the Linde et al. 2006 model.
 
 - fu(vwc, bd, water_ec, clay, pdn=2.65, solid_ec=(1*(10**-7)), w=2):
-    Calculates the soil bulk real electrical conductivity using the Fu et al. 2021 model.
 
 """
 
@@ -290,43 +289,7 @@ def update_plot(CLAY, VWC, ECW, BD):
     axes[2].legend(loc='upper left')
     fig.suptitle(f'Comparison of Linde et al. 2006 and Fu et al. 2021 for EC modelling', fontsize=14)
     plt.show()
-
-# Update plot function
-def update_plot2(CEC, VWC, BD,ECW):
-    # Calculate model outputs
-    c_v_it = [waxsmits(vwc, BD, ECW, CEC) for vwc in vwc_i]
-    c_b_it = [waxsmits(VWC, bd, ECW, CEC) for bd in b_dens_i]
-    c_c_it = [waxsmits(VWC, BD, ECW, cec) for cec in CEC_i]
-
-    # Plotting
-    fig, axes = plt.subplots(1, 3, figsize=(16, 5))
-
-    axes[0].plot(vwc_i, c_v_it, linewidth=3)
-    axes[0].set_xlabel("volumetric water content [%]")
-    axes[0].set_ylabel("bulk EC [mS/m]")
-    axes[0].set_title("change bd and CEC with slider")
-
-    # CEC and BD plot
-    axes[1].plot(b_dens_i, c_b_it, linewidth=3)
-    axes[1].set_xlabel("bulk density [g/cm^3]")
-    axes[1].set_ylabel("bulk EC [mS/m]")
-    axes[1].set_title("change vwc and CEC with slider")
-
-
-    # CEC and BD plot
-    average_ec = np.mean(c_c_it)
-    plot_lab = 'mean bulk EC: ' + str(round(average_ec, 2)) + '[mS/m]'
-    axes[2].plot(CEC_i, c_c_it, label=plot_lab, linewidth=3)
-    
-    # set y axis range from 0 to 100 mS/m
-    axes[2].set_ylim([0, 100])
-    axes[2].set_xlabel("CEC [mmol/g]")
-    axes[2].set_ylabel("bulk EC [mS/m]")
-    axes[2].legend(loc='upper right')
-    fig.suptitle('Evaluation of Waxman & Smits (1968) EC model with '
-                 'Revil et al. 1998 modification', fontsize=14)
-    plt.show()
-
+        
 # 2.0: Pedophysical modelling - Linde et al. 2006
 # -----------------------------------------------
 

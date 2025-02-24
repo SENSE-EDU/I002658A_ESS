@@ -5,7 +5,6 @@ exporting grids, and calculating sensitivities.
 
 Functions:
 -----------
-
 - interpolate(x, y, z, cell_size, method='nearest', smooth_s=0, blank=blank):
     Interpolates scatter data to a regular grid using the specified interpolation method.
 
