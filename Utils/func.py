@@ -31,6 +31,17 @@ Functions:
     Calculates the soil bulk real electrical conductivity using the Fu et al. 2021 model.
 
 """
+# load the required libraries
+import os
+import numpy as np
+import matplotlib.pyplot as plt
+import rasterio
+from rasterio.transform import from_origin
+from scipy.interpolate import griddata
+from scipy.ndimage import gaussian_filter
+import matplotlib
+import geopandas as gpd
+
 
 def interpolate(x, y, z, cell_size, method='nearest', 
                 smooth_s=0, blank=None):
@@ -79,6 +90,7 @@ def interpolate(x, y, z, cell_size, method='nearest',
         - the grid extent (grid['extent'])
 
     """
+    # Define an evenly spaced grid over which the dataset values have to be interpolated
     x_min = x.min()
     x_max = x.max() + cell_size
     y_min = y.min()
@@ -134,7 +146,7 @@ def interpolate(x, y, z, cell_size, method='nearest',
 # Function to export an interpolated grid as a geotif.
 # -------------------------------------------------------
 
-def export_grid(grid_in, filename='georaster'): 
+def export_grid(grid_in, filename='georaster', export_path=os.getcwd()): 
     """
     Interpolate scatter data to regular grid through selected interpolation 
     method (with scipy.interpolate for simple interpolation).
@@ -147,10 +159,13 @@ def export_grid(grid_in, filename='georaster'):
     filename : str, optional
         Name of the GeoTIFF (.tif) file (standard = 'gridded').
 
+    export_path : str, optional
+        Path to the directory where the GeoTIFF file will be saved (default is current directory).
+
     Returns
     -------
     None
-    !!! data are exported to the working directory as a GeoTIFF file.
+    !!! data are exported to the specified directory as a GeoTIFF file.
     
     """
 
@@ -168,8 +183,9 @@ def export_grid(grid_in, filename='georaster'):
     grid_exp = np.flip(grid_exp, axis=0)
 
     # Create an empty grid with correct name and coordinate system
+    output_file = os.path.join(export_path, filename + '.tif')
     with rasterio.open(
-        filename + '.tif',
+        output_file,
         mode='w',
         driver='GTiff',
         height=nx,
@@ -183,7 +199,7 @@ def export_grid(grid_in, filename='georaster'):
         dst.write(grid_exp, 1)
 
     # Open the GeoTIFF file in read/write mode to flip the image vertically
-    with rasterio.open(filename + '.tif', mode='r+') as dst:
+    with rasterio.open(output_file, mode='r+') as dst:
         data = dst.read()
         dst.write(data[0, ::-1], 1)
 
@@ -226,13 +242,15 @@ def lin_sens(geometry, maxdepth=3., n_int=100, sensor_height = 0):
         Array of cumulative IP sensitivities obtained over the evaluated depths.
 
     """
+    # determine depth extent along which to evaluate sensitivity
     depths = np.linspace(.0, maxdepth, n_int)
 
     if 'inph' in geometry:
         coil_spacing = float(geometry[3:6])
     else: 
         coil_spacing = float(geometry[-3:])
-
+    
+    # create empty arrays
     csens_QP = np.empty_like(depths)
     rsens_QP = np.empty_like(depths)
     csens_IP = np.empty_like(depths)
@@ -254,7 +272,7 @@ def lin_sens(geometry, maxdepth=3., n_int=100, sensor_height = 0):
     return rsens_QP, csens_QP, rsens_IP, csens_IP
 
 # Update plot function based on slider changes
-def update_plot(CLAY, VWC, ECW, BD):
+def update_plot(CLAY, VWC, ECW, BD, vwc_i, b_dens_i, clay_i):
     # Iterate over bulk density for first plot
     SAND = (100-CLAY)/2
     linde_b_it = [linde(VWC, bd, ECW, CLAY, SAND) for bd in b_dens_i]
@@ -292,7 +310,7 @@ def update_plot(CLAY, VWC, ECW, BD):
     plt.show()
 
 # Update plot function
-def update_plot2(CEC, VWC, BD,ECW):
+def update_plot2(CEC, VWC, BD,ECW, vwc_i, b_dens_i, CEC_i):
     # Calculate model outputs
     c_v_it = [waxsmits(vwc, BD, ECW, CEC) for vwc in vwc_i]
     c_b_it = [waxsmits(VWC, bd, ECW, CEC) for bd in b_dens_i]
