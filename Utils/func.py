@@ -164,8 +164,7 @@ def export_grid(grid_in, filename='georaster', export_path=os.getcwd()):
 
     Returns
     -------
-    None
-    !!! data are exported to the specified directory as a GeoTIFF file.
+    data are exported to the specified directory as a GeoTIFF file.
     
     """
 
